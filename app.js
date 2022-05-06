@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const helmet = require("helmet");
 
+const userRoutes = require("./routes/userroute");
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(
@@ -22,6 +24,10 @@ app.use((req, res, next) => {
     );
     next();
 })
+
+app.use("/api/auth", userRoutes);
+
+
 
 
 module.exports = app;

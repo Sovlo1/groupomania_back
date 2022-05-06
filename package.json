@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/Sovlo1/SQLtest#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.18.1",
     "helmet": "^5.0.2",
+    "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
     "sequelize": "^6.19.0",
     "sequelize-cli": "^6.4.1"
