@@ -55,12 +55,58 @@ exports.login = (req, res) => {
             userId: foundUser.id,
             isAdmin: foundUser.isAdmin,
             isMod: foundUser.isMod,
-            token: jwt.sign({ userId: foundUser.id }, "RANDOMIZER", {
-              expiresIn: "24h",
-            }),
+            token: jwt.sign(
+              {
+                userId: foundUser.id,
+                isAdmin: foundUser.isAdmin,
+                isMod: foundUser.isMod,
+              },
+              "RANDOMIZER",
+              {
+                expiresIn: "24h",
+              }
+            ),
           });
         })
-        .catch((error) => res.status(500).json({error}));
+        .catch((error) => res.status(500).json({ error }));
     })
-    .catch((error) => res.status(500).json({error}));
+    .catch((error) => res.status(500).json({ error }));
+};
+
+exports.changePassword = (req, res) => {
+  models.User.findOne({
+    where: { email: req.body.email },
+  })
+    .then((foundUser) => {
+      if (!foundUser) {
+        return res.status(401).json({ erreur: "User doesn't exist" });
+      }
+      bcrypt
+        .compare(req.body.password, foundUser.password)
+        .then((valid) => {
+          if (!valid) {
+            return res.status(401).json({ erreur: "Incorrect password" });
+          } else {
+            bcrypt
+              .hash(req.body.newPassword, 10)
+              .then((hash) => {
+                models.User.update(
+                  {
+                    password: hash,
+                  },
+                  {
+                    where: { email: req.body.email },
+                  }
+                );
+              })
+              .then(() =>
+                res
+                  .status(200)
+                  .json({ message: "successfully changed password" })
+              );
+          }
+        })
+        .catch((error) => res.status(500).json({ error }));
+    })
+    .catch((error) => res.status(500).json({ error }));
 };

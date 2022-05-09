@@ -3,6 +3,7 @@ const app = express();
 const helmet = require("helmet");
 
 const userRoutes = require("./routes/userroute");
+const postRoutes = require("./routes/postroute");
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 })
 
 app.use("/api/auth", userRoutes);
-
+app.use("/api/post", postRoutes)
 
 
 
