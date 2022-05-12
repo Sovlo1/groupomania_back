@@ -8,11 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      userId: {
+      postId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "Users",
+          model: "Posts",
           key: "id"
         }
       },
@@ -20,9 +20,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      postedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      fileUrl: {
+        allowNull: true,
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
