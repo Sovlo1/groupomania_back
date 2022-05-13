@@ -110,3 +110,15 @@ exports.changePassword = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error }));
 };
+
+
+
+exports.deleteAccount = (req, res) => {
+  models.User.destroy({
+    where: {
+      email: req.body.email,
+    },
+  })
+    .then(() => res.status(200).json({ message: "Deleted account" }))
+    .catch((error) => res.status(500).json({ error }));
+};

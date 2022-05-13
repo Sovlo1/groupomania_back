@@ -22,11 +22,12 @@ module.exports = (sequelize, DataTypes) => {
   Post.init({
     userId: DataTypes.INTEGER,
     title: DataTypes.STRING,
-    content: DataTypes.STRING,
+    content: DataTypes.TEXT,
     fileUrl: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Post',
+    timestamps: true,
+    paranoid: true,
   });
   return Post;
 };

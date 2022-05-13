@@ -8,6 +8,14 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      userId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id"
+        }
+      },
       postId: {
         allowNull: false,
         type: Sequelize.INTEGER,
@@ -18,7 +26,7 @@ module.exports = {
       },
       content: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       fileUrl: {
         allowNull: true,
@@ -31,7 +39,14 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       }
+    }, {
+      paranoid: true,
+      timestamps: true
     });
   },
   async down(queryInterface, Sequelize) {

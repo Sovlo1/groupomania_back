@@ -22,7 +22,7 @@ module.exports = {
       },
       content: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       fileUrl: {
         allowNull: true,
@@ -35,7 +35,14 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       }
+    }, {
+      paranoid: true,
+      timestamps: true
     });
   },
   async down(queryInterface, Sequelize) {

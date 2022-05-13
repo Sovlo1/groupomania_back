@@ -15,16 +15,24 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: {
           allowNull: false
         }
+      }),
+      models.Comment.belongsTo(models.User, {
+        foreignKey: {
+          allowNull: false
+        }
       })
     }
   }
   Comment.init({
+    userId: DataTypes.INTEGER,
     postId: DataTypes.INTEGER,
-    content: DataTypes.STRING,
+    content: DataTypes.TEXT,
     fileUrl: DataTypes.STRING
-  }, {
+  },
+  {
     sequelize,
-    modelName: 'Comment',
+    timestamps: true,
+    paranoid: true,
   });
   return Comment;
 };

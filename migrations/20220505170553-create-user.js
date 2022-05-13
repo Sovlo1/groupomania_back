@@ -17,6 +17,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      profilePicUrl: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING
+      },
       lastName: {
         allowNull: false,
         type: Sequelize.STRING
@@ -40,7 +45,14 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE
       }
+    }, {
+      paranoid: true,
+      timestamps: true
     });
   },
   async down(queryInterface, Sequelize) {
