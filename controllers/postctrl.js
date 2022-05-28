@@ -1,8 +1,12 @@
 const models = require("../models");
 
 exports.viewPosts = (req, res) => {
-  models.Post.findAll()
-    .then((posts) => res.status(201).json(posts))
+  models.Post.findAll({
+    include: [{ model: models.Comment }, { model: models.User }],
+  })
+    .then((posts) => {
+      res.status(201).json(posts);
+    })
     .catch((error) => res.status(500).json({ error }));
 };
 

@@ -111,8 +111,6 @@ exports.changePassword = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-
-
 exports.deleteAccount = (req, res) => {
   models.User.destroy({
     where: {
@@ -121,4 +119,11 @@ exports.deleteAccount = (req, res) => {
   })
     .then(() => res.status(200).json({ message: "Deleted account" }))
     .catch((error) => res.status(500).json({ error }));
+};
+
+exports.UserAssociatedPosts = (req, res) => {
+  models.User.findAll({ include: models.Post }).then((allo) => {
+    console.log(allo);
+    res.status(200).json({ allo });
+  });
 };
