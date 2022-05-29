@@ -73,6 +73,17 @@ exports.login = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+exports.findUser = (req, res) => {
+  models.User.findOne({
+    where: { id: req.params.id },
+  }).then((foundUser) => {
+    if (!foundUser) {
+      return res.status(500).json({ error: "Something went wrong" });
+    }
+    res.status(200).json(foundUser);
+  });
+};
+
 exports.changePassword = (req, res) => {
   models.User.findOne({
     where: { email: req.body.email },
