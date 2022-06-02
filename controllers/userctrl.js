@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const models = require("../models");
+const fs = require("fs");
 
 exports.signup = (req, res) => {
   if (
@@ -19,7 +20,7 @@ exports.signup = (req, res) => {
       bcrypt
         .hash(req.body.password, 10)
         .then((hash) => {
-          const newUser = models.User.create({
+          models.User.create({
             email: req.body.email,
             firstName: req.body.firstName,
             lastName: req.body.lastName,
@@ -50,27 +51,30 @@ exports.login = (req, res) => {
         .then((valid) => {
           if (!valid) {
             return res.status(401).json({ erreur: "Incorrect password" });
+          } else {
+            const userId = foundUser.id.toString();
+            const isAdmin = foundUser.isAdmin;
+            const isMod = foundUser.isMod;
+            const token = jwt.sign({}, "RANDOMIZER", {
+              subject: userId,
+              expiresIn: 60 * 60 * 24 * 30 * 6,
+            });
+            console.log(token);
+            res.cookie("token", token, {
+              httpOnly: false,
+              secure: false,
+            });
+            return res.status(200).json({
+              userId,
+              isAdmin,
+              isMod,
+              token,
+            });
           }
-          res.status(200).json({
-            userId: foundUser.id,
-            isAdmin: foundUser.isAdmin,
-            isMod: foundUser.isMod,
-            token: jwt.sign(
-              {
-                userId: foundUser.id,
-                isAdmin: foundUser.isAdmin,
-                isMod: foundUser.isMod,
-              },
-              "RANDOMIZER",
-              {
-                expiresIn: "24h",
-              }
-            ),
-          });
         })
-        .catch((error) => res.status(500).json({ error }));
+        .catch((error) => res.status(500).json({ error: "ici" }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => res.status(500).json({ error: "la" }));
 };
 
 exports.findUser = (req, res) => {
@@ -123,13 +127,99 @@ exports.changePassword = (req, res) => {
 };
 
 exports.deleteAccount = (req, res) => {
-  models.User.destroy({
+  models.User.findOne({
     where: {
-      email: req.body.email,
+      id: req.body.userId,
     },
   })
-    .then(() => res.status(200).json({ message: "Deleted account" }))
+    .then((foundUser) => {
+      if (!foundUser) {
+        return res.status(401).json({ erreur: "User doesn't exist" });
+      } else {
+        models.Post.findAll({
+          where: {
+            userId: req.body.userId,
+          },
+        }).then((Posts) => {
+          for (let i = 0; i < Posts.length; i++) {
+            if (Posts[i].fileUrl !== null) {
+              let file = Posts[i].fileUrl.split("/files/")[1];
+              fs.unlink(`files/${file}`, (err) => {
+                if (err) {
+                  console.log(`Could not delete ${file}`);
+                } else {
+                  console.log(`Successfully deleted ${file}`);
+                }
+              });
+            }
+          }
+        });
+        bcrypt
+          .compare(req.body.password, foundUser.password)
+          .then((valid) => {
+            if (!valid) {
+              return res.status(401).json({ erreur: "Incorrect password" });
+            } else {
+              (models.User.destroy({
+                where: {
+                  id: req.body.userId,
+                },
+              }),
+              models.Post.destroy({
+                where: {
+                  userId: req.body.userId,
+                },
+              }),
+              models.Comment.destroy({
+                where: {
+                  userId: req.body.userId,
+                },
+              })).then(() => {
+                res.status(200).json({ message: "user removed" });
+              });
+            }
+          })
+          .catch((error) => res.status(500).json({ error }));
+      }
+    })
     .catch((error) => res.status(500).json({ error }));
+};
+
+exports.fetchCurrentUser = async (req, res) => {
+  const token = req.cookies;
+  console.log(token);
+  try {
+    const decodedToken = jwt.verify(
+      JSON.parse(req.cookies.token),
+      "RANDOMIZER"
+    );
+    console.log(decodedToken);
+  } catch {
+    console.log("oups");
+  }
+  res.end();
+
+  // if (token) {
+  //   try {
+  //     const decodedToken = jwt.verify(token, "RANDOMIZER");
+  //     if (decodedToken) {
+  //       const user = await models.User.findOne({
+  //         where: { id: decodedToken.userId },
+  //       }).exec();
+  //       if (user) {
+  //         return res.status(200).json(user);
+  //       } else {
+  //         return res.status(404).json({ message: "lala" });
+  //       }
+  //     } else {
+  //       return res.status(404).json({ message: "lala" });
+  //     }
+  //   } catch (error) {
+  //     return res.status(500).json({ message: "lala" });
+  //   }
+  // } else {
+  //   return res.status(404).json({ message: "lala" });
+  // }
 };
 
 exports.UserAssociatedPosts = (req, res) => {

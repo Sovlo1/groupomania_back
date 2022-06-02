@@ -8,5 +8,6 @@ router.put("/modifyPwd", userControl.changePassword);
 router.delete("/delete", userControl.deleteAccount);
 router.get("/test", userControl.UserAssociatedPosts);
 router.get("/about/:id", userControl.findUser);
+router.get("/loggeduser", userControl.fetchCurrentUser);
 
 module.exports = router;

@@ -11,11 +11,11 @@ exports.viewPosts = (req, res) => {
 };
 
 exports.createNewPost = (req, res) => {
-  console.log(req.auth);
+  console.log(req);
   let newPost;
   if (req.file) {
     newPost = {
-      ...req.body,
+      ...JSON.parse(req.body.post),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
         req.file.filename
       }`,

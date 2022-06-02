@@ -1,8 +1,8 @@
 const multer = require("multer");
 
 const MIME_TYPES = {
-  "video/x-msvideo": "avi",
   "video/webm": "webm",
+  "video/mp4": "mp4",
   "video/mpeg": "mpeg",
   "image/gif": "gif",
   "image/jpg": "jpg",
@@ -12,7 +12,7 @@ const MIME_TYPES = {
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "images");
+    callback(null, "files");
   },
   filename: (req, file, callback) => {
     const name = file.originalname
@@ -29,4 +29,4 @@ const storage = multer.diskStorage({
   },
 });
 
-module.exports = multer({ storage }).single("image");
+module.exports = multer({ storage }).single("file");
