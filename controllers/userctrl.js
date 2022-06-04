@@ -55,15 +55,17 @@ exports.login = (req, res) => {
             const userId = foundUser.id.toString();
             const isAdmin = foundUser.isAdmin;
             const isMod = foundUser.isMod;
-            const token = jwt.sign({}, "RANDOMIZER", {
-              subject: userId,
-              expiresIn: 60 * 60 * 24 * 30 * 6,
-            });
-            console.log(token);
-            res.cookie("token", token, {
-              httpOnly: false,
-              secure: false,
-            });
+            const token = jwt.sign(
+              {
+                userId: userId,
+                isAdmin: isAdmin,
+                isMod: isMod,
+              },
+              "RANDOMIZER",
+              {
+                expiresIn: 60 * 60 * 24 * 30 * 6,
+              }
+            );
             return res.status(200).json({
               userId,
               isAdmin,
@@ -78,6 +80,7 @@ exports.login = (req, res) => {
 };
 
 exports.findUser = (req, res) => {
+  console.log(req.auth);
   models.User.findOne({
     where: { id: req.params.id },
   }).then((foundUser) => {
@@ -185,41 +188,35 @@ exports.deleteAccount = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-exports.fetchCurrentUser = async (req, res) => {
-  const token = req.cookies;
-  console.log(token);
-  try {
-    const decodedToken = jwt.verify(
-      JSON.parse(req.cookies.token),
-      "RANDOMIZER"
-    );
-    console.log(decodedToken);
-  } catch {
-    console.log("oups");
+exports.fetchCurrentUser = (req, res) => {
+  console.log(req.body);
+  const token = req.body.token;
+  let userId;
+  if (token) {
+    try {
+      const decodedToken = jwt.verify(token, "RANDOMIZER");
+      userId = decodedToken.userId;
+    } catch (error) {
+      res.status(401).json({ error: error | "nul à chier" });
+    }
+    if (decodedToken) {
+      models.User.findOne({
+        where: { id: userId },
+      }).then((foundUser) => {
+        if (!foundUser) {
+          return res.status(500).json({ error: "Something went wrong" });
+        }
+        res
+          .status(200)
+          .json(foundUser)
+          .catch((error) => res.status(500).json({ error }));
+      });
+    } else {
+      res.status(404).json({ message: "missing decodedtoken" });
+    }
+  } else {
+    res.status(404).json({ message: "missing token nul" });
   }
-  res.end();
-
-  // if (token) {
-  //   try {
-  //     const decodedToken = jwt.verify(token, "RANDOMIZER");
-  //     if (decodedToken) {
-  //       const user = await models.User.findOne({
-  //         where: { id: decodedToken.userId },
-  //       }).exec();
-  //       if (user) {
-  //         return res.status(200).json(user);
-  //       } else {
-  //         return res.status(404).json({ message: "lala" });
-  //       }
-  //     } else {
-  //       return res.status(404).json({ message: "lala" });
-  //     }
-  //   } catch (error) {
-  //     return res.status(500).json({ message: "lala" });
-  //   }
-  // } else {
-  //   return res.status(404).json({ message: "lala" });
-  // }
 };
 
 exports.UserAssociatedPosts = (req, res) => {

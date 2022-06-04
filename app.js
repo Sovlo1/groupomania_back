@@ -3,19 +3,27 @@ const app = express();
 const helmet = require("helmet");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+
+// let whitelist = ["http://localhost:4200"];
+// let corsOptions = {
+//   origin: "http://localhost:4200",
+//   credentials: true,
+// };
 
 const userRoutes = require("./routes/userroute");
 const postRoutes = require("./routes/postroute");
 
+// app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(
-//   helmet({
-//     crossOriginResourcePolicy: { policy: "cross-origin" },
-//   })
-// );
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

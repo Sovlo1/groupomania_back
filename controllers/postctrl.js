@@ -11,9 +11,11 @@ exports.viewPosts = (req, res) => {
 };
 
 exports.createNewPost = (req, res) => {
-  console.log(req);
+  console.log(req.body);
+  console.log(req.auth);
   let newPost;
   if (req.file) {
+    console.log("sup");
     newPost = {
       ...JSON.parse(req.body.post),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
@@ -21,8 +23,10 @@ exports.createNewPost = (req, res) => {
       }`,
     };
   } else {
-    newPost = { ...req.body };
+    console.log("hello");
+    newPost = { ...JSON.parse(req.body.post) };
   }
+  console.log(newPost);
   models.Post.create({
     ...newPost,
     UserId: req.auth.userId,
