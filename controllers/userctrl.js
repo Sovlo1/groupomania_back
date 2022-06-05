@@ -74,13 +74,12 @@ exports.login = (req, res) => {
             });
           }
         })
-        .catch((error) => res.status(500).json({ error: "ici" }));
+        .catch((error) => res.status(500).json({ error }));
     })
-    .catch((error) => res.status(500).json({ error: "la" }));
+    .catch((error) => res.status(500).json({ error }));
 };
 
 exports.findUser = (req, res) => {
-  console.log(req.auth);
   models.User.findOne({
     where: { id: req.params.id },
   }).then((foundUser) => {
@@ -189,34 +188,16 @@ exports.deleteAccount = (req, res) => {
 };
 
 exports.fetchCurrentUser = (req, res) => {
-  console.log(req.body);
-  const token = req.body.token;
-  let userId;
-  if (token) {
-    try {
-      const decodedToken = jwt.verify(token, "RANDOMIZER");
-      userId = decodedToken.userId;
-    } catch (error) {
-      res.status(401).json({ error: error | "nul à chier" });
-    }
-    if (decodedToken) {
-      models.User.findOne({
-        where: { id: userId },
-      }).then((foundUser) => {
-        if (!foundUser) {
-          return res.status(500).json({ error: "Something went wrong" });
-        }
-        res
-          .status(200)
-          .json(foundUser)
-          .catch((error) => res.status(500).json({ error }));
-      });
-    } else {
-      res.status(404).json({ message: "missing decodedtoken" });
-    }
-  } else {
-    res.status(404).json({ message: "missing token nul" });
-  }
+  models.User.findOne({
+    where: { id: req.token.userId },
+  })
+    .then((foundUser) => {
+      if (!foundUser) {
+        return res.status(500).json({ error: "Something went wrong" });
+      }
+      res.status(200).json(foundUser);
+    })
+    .catch((error) => res.status(500).json({ error }));
 };
 
 exports.UserAssociatedPosts = (req, res) => {
