@@ -1,8 +1,10 @@
+const { sequelize } = require("../models");
 const models = require("../models");
 
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
     include: [{ model: models.Comment }, { model: models.User }],
+    order: sequelize.literal("id ASC"),
   })
     .then((posts) => {
       res.status(201).json(posts);

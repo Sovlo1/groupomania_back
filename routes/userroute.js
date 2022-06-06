@@ -5,7 +5,8 @@ const token = require("../middleware/token");
 
 router.post("/signup", userControl.signup);
 router.post("/login", userControl.login);
-router.put("/modifyPwd", userControl.changePassword);
+router.put("/modifypassword", userControl.changePassword);
+router.put("/updateuser", userControl.updateUser);
 router.delete("/delete", userControl.deleteAccount);
 router.get("/test", userControl.UserAssociatedPosts);
 router.get("/about/:id", userControl.findUser);

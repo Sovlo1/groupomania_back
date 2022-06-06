@@ -13,6 +13,7 @@ const cors = require("cors");
 
 const userRoutes = require("./routes/userroute");
 const postRoutes = require("./routes/postroute");
+const commentRoutes = require("./routes/commentroute");
 
 // app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -41,5 +42,6 @@ app.use((req, res, next) => {
 app.use("/files", express.static(path.join(__dirname, "files")));
 app.use("/api/auth", userRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/comment", commentRoutes);
 
 module.exports = app;

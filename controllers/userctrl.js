@@ -138,31 +138,31 @@ exports.deleteAccount = (req, res) => {
       if (!foundUser) {
         return res.status(401).json({ erreur: "User doesn't exist" });
       } else {
-        models.Post.findAll({
-          where: {
-            userId: req.body.userId,
-          },
-        }).then((Posts) => {
-          for (let i = 0; i < Posts.length; i++) {
-            if (Posts[i].fileUrl !== null) {
-              let file = Posts[i].fileUrl.split("/files/")[1];
-              fs.unlink(`files/${file}`, (err) => {
-                if (err) {
-                  console.log(`Could not delete ${file}`);
-                } else {
-                  console.log(`Successfully deleted ${file}`);
-                }
-              });
-            }
-          }
-        });
         bcrypt
           .compare(req.body.password, foundUser.password)
           .then((valid) => {
             if (!valid) {
               return res.status(401).json({ erreur: "Incorrect password" });
             } else {
-              (models.User.destroy({
+              (models.Post.findAll({
+                where: {
+                  userId: req.body.userId,
+                },
+              }).then((Posts) => {
+                for (let i = 0; i < Posts.length; i++) {
+                  if (Posts[i].fileUrl !== null) {
+                    let file = Posts[i].fileUrl.split("/files/")[1];
+                    fs.unlink(`files/${file}`, (err) => {
+                      if (err) {
+                        console.log(`Could not delete ${file}`);
+                      } else {
+                        console.log(`Successfully deleted ${file}`);
+                      }
+                    });
+                  }
+                }
+              }),
+              models.User.destroy({
                 where: {
                   id: req.body.userId,
                 },
@@ -198,6 +198,11 @@ exports.fetchCurrentUser = (req, res) => {
       res.status(200).json(foundUser);
     })
     .catch((error) => res.status(500).json({ error }));
+};
+
+exports.updateUser = (req, res) => {
+  console.log(req.body);
+  res.end();
 };
 
 exports.UserAssociatedPosts = (req, res) => {
