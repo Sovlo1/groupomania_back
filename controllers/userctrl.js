@@ -92,27 +92,27 @@ exports.findUser = (req, res) => {
 
 exports.changePassword = (req, res) => {
   models.User.findOne({
-    where: { email: req.body.email },
+    where: { id: req.body.userId },
   })
     .then((foundUser) => {
       if (!foundUser) {
         return res.status(401).json({ erreur: "User doesn't exist" });
       }
       bcrypt
-        .compare(req.body.password, foundUser.password)
+        .compare(req.body.user.password, foundUser.password)
         .then((valid) => {
           if (!valid) {
             return res.status(401).json({ erreur: "Incorrect password" });
           } else {
             bcrypt
-              .hash(req.body.newPassword, 10)
+              .hash(req.body.user.newPassword, 10)
               .then((hash) => {
                 models.User.update(
                   {
                     password: hash,
                   },
                   {
-                    where: { email: req.body.email },
+                    where: { id: req.body.userId },
                   }
                 );
               })
@@ -201,8 +201,27 @@ exports.fetchCurrentUser = (req, res) => {
 };
 
 exports.updateUser = (req, res) => {
-  console.log(req.body);
-  res.end();
+  let updatedUser;
+  if (req.file) {
+    updatedUser = {
+      ...JSON.parse(req.body.user),
+      profilePicUrl: `${req.protocol}://${req.get("host")}/files/${
+        req.file.filename
+      }`,
+    };
+  } else {
+    updatedUser = JSON.parse(req.body.user);
+  }
+  models.User.update(
+    { ...updatedUser },
+    {
+      where: {
+        id: req.body.userId,
+      },
+    }
+  )
+    .then(() => res.status(201).json({ message: "Updated user!" }))
+    .catch((error) => res.status(500).json({ error }));
 };
 
 exports.UserAssociatedPosts = (req, res) => {

@@ -1,6 +1,9 @@
 const models = require("../models");
 
 exports.addComment = (req, res) => {
+  console.log(req.body);
+  console.log(JSON.parse(req.body.comment));
+  console.log(req.body.postId);
   let newComment;
   if (req.file) {
     console.log("sup");
@@ -12,11 +15,11 @@ exports.addComment = (req, res) => {
     };
   } else {
     console.log("hello");
-    newComment = req.body.comment;
+    newComment = JSON.parse(req.body.comment);
   }
   console.log(newComment);
   models.Comment.create({
-    content: newComment,
+    ...newComment,
     UserId: req.auth.userId,
     PostId: req.body.postId,
   })

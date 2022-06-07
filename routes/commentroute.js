@@ -5,6 +5,6 @@ const auth = require("../middleware/auth");
 const multer = require("../middleware/multer-config");
 
 // router.get("/comments", commentControl.viewComments);
-router.post("/new", auth, commentControl.addComment);
+router.post("/new", multer, auth, commentControl.addComment);
 
 module.exports = router;

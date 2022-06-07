@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const userControl = require("../controllers/userctrl");
 const token = require("../middleware/token");
+const multer = require("../middleware/multer-config");
 
 router.post("/signup", userControl.signup);
 router.post("/login", userControl.login);
 router.put("/modifypassword", userControl.changePassword);
-router.put("/updateuser", userControl.updateUser);
+router.put("/updateuser", multer, userControl.updateUser);
 router.delete("/delete", userControl.deleteAccount);
 router.get("/test", userControl.UserAssociatedPosts);
 router.get("/about/:id", userControl.findUser);

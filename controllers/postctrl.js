@@ -13,11 +13,11 @@ exports.viewPosts = (req, res) => {
 };
 
 exports.createNewPost = (req, res) => {
+  console.log("INITIAL REQUEST");
   console.log(req.body);
-  console.log(req.auth);
   let newPost;
   if (req.file) {
-    console.log("sup");
+    console.log("NEWPOST WITH FILE HERE");
     newPost = {
       ...JSON.parse(req.body.post),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
@@ -25,9 +25,10 @@ exports.createNewPost = (req, res) => {
       }`,
     };
   } else {
-    console.log("hello");
+    console.log("NEWPOST NO FILE HERE");
     newPost = { ...JSON.parse(req.body.post) };
   }
+  console.log("FINAL NEWPOST");
   console.log(newPost);
   models.Post.create({
     ...newPost,
