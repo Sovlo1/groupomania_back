@@ -99,13 +99,13 @@ exports.changePassword = (req, res) => {
         return res.status(401).json({ erreur: "User doesn't exist" });
       }
       bcrypt
-        .compare(req.body.user.password, foundUser.password)
+        .compare(req.body.password, foundUser.password)
         .then((valid) => {
           if (!valid) {
             return res.status(401).json({ erreur: "Incorrect password" });
           } else {
             bcrypt
-              .hash(req.body.user.newPassword, 10)
+              .hash(req.body.newPassword, 10)
               .then((hash) => {
                 models.User.update(
                   {

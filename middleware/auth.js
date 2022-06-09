@@ -9,8 +9,9 @@ module.exports = (req, res, next) => {
     const userId = decodedToken.userId;
     const isAdmin = decodedToken.isAdmin;
     const isMod = decodedToken.isMod;
+    console.log(typeof userId);
     req.auth = { userId, isAdmin, isMod };
-    if (req.body.userId && req.body.userId !== userId) {
+    if (req.body.userId && req.body.userId != userId) {
       throw "Invalid user ID";
     } else {
       next();

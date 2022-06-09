@@ -12,6 +12,17 @@ exports.viewPosts = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+exports.viewSinglePost = (req, res) => {
+  console.log(req.params.id);
+  models.Post.findAll({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((post) => res.status(200).json(post))
+    .catch((error) => res.status(500).json({ error }));
+};
+
 exports.createNewPost = (req, res) => {
   console.log("INITIAL REQUEST");
   console.log(req.body);
@@ -39,9 +50,10 @@ exports.createNewPost = (req, res) => {
 };
 
 exports.deletePost = (req, res) => {
+  console.log(req.body);
   models.Post.findOne({
     where: {
-      id: req.body.id,
+      id: req.body.postId,
     },
   })
     .then((post) => {
@@ -53,7 +65,7 @@ exports.deletePost = (req, res) => {
       ) {
         models.Post.destroy({
           where: {
-            id: req.body.id,
+            id: req.body.postId,
           },
         });
       } else {
