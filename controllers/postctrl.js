@@ -13,7 +13,6 @@ exports.viewPosts = (req, res) => {
 };
 
 exports.viewSinglePost = (req, res) => {
-  console.log(req.params.id);
   models.Post.findAll({
     where: {
       id: req.params.id,
