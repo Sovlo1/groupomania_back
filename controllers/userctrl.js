@@ -86,6 +86,7 @@ exports.findUser = (req, res) => {
     if (!foundUser) {
       return res.status(500).json({ error: "Something went wrong" });
     }
+    console.log(foundUser);
     res.status(200).json(foundUser);
   });
 };
@@ -195,6 +196,7 @@ exports.fetchCurrentUser = (req, res) => {
       if (!foundUser) {
         return res.status(500).json({ error: "Something went wrong" });
       }
+      console.log(foundUser);
       res.status(200).json(foundUser);
     })
     .catch((error) => res.status(500).json({ error }));

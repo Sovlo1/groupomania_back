@@ -3,10 +3,14 @@ const models = require("../models");
 
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
-    include: [{ model: models.Comment }, { model: models.User }],
+    include: [
+      { model: models.Comment, include: { model: models.User } },
+      { model: models.User },
+    ],
     order: sequelize.literal("id ASC"),
   })
     .then((posts) => {
+      console.log(posts);
       res.status(201).json(posts);
     })
     .catch((error) => res.status(500).json({ error }));
@@ -44,6 +48,33 @@ exports.createNewPost = (req, res) => {
     ...newPost,
     UserId: req.auth.userId,
   })
+    .then(() => res.status(201).json({ message: "New post created" }))
+    .catch((error) => res.status(500).json({ error }));
+};
+
+exports.updatePost = (req, res) => {
+  console.log(req.body);
+  let updatedPost;
+  if (req.file) {
+    console.log("NEWPOST WITH FILE HERE");
+    updatedPost = {
+      ...JSON.parse(req.body.post),
+      fileUrl: `${req.protocol}://${req.get("host")}/files/${
+        req.file.filename
+      }`,
+    };
+  } else {
+    console.log("NEWPOST NO FILE HERE");
+    updatedPost = { ...JSON.parse(req.body.post) };
+  }
+  console.log("FINAL NEWPOST");
+  console.log(updatedPost);
+  models.Post.update(
+    { ...updatedPost },
+    {
+      where: { id: req.params.id },
+    }
+  )
     .then(() => res.status(201).json({ message: "New post created" }))
     .catch((error) => res.status(500).json({ error }));
 };

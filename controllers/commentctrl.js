@@ -26,3 +26,30 @@ exports.addComment = (req, res) => {
     .then(() => res.status(201).json({ message: "New comment created" }))
     .catch((error) => res.status(500).json({ error }));
 };
+
+exports.deleteComment = (req, res) => {
+  console.log(req.body);
+  models.Comment.findOne({
+    where: {
+      id: req.body.commentId,
+    },
+  })
+    .then((comment) => {
+      console.log(comment.UserId);
+      if (
+        req.auth.userId == comment.UserId ||
+        req.auth.isAdmin == true ||
+        req.auth.isMod == true
+      ) {
+        models.Comment.destroy({
+          where: {
+            id: req.body.commentId,
+          },
+        });
+      } else {
+        res.status(401).json({ message: "Unauthorized operation" });
+      }
+    })
+    .then(() => res.status(200).json({ message: "Deleted post" }))
+    .catch((error) => res.status(500).json({ error }));
+};
