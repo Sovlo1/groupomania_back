@@ -28,14 +28,13 @@ exports.addComment = (req, res) => {
 };
 
 exports.deleteComment = (req, res) => {
-  console.log(req.body);
+  console.log(req.auth);
   models.Comment.findOne({
     where: {
       id: req.body.commentId,
     },
   })
     .then((comment) => {
-      console.log(comment.UserId);
       if (
         req.auth.userId == comment.UserId ||
         req.auth.isAdmin == true ||

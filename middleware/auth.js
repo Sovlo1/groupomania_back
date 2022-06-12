@@ -3,20 +3,22 @@ const jwt = require("jsonwebtoken");
 module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    console.log(token);
     const decodedToken = jwt.verify(token, "RANDOMIZER");
-    console.log(decodedToken);
     const userId = decodedToken.userId;
     const isAdmin = decodedToken.isAdmin;
     const isMod = decodedToken.isMod;
-    console.log(typeof userId);
     req.auth = { userId, isAdmin, isMod };
-    if (req.body.userId && req.body.userId != userId) {
+    if (
+      req.body.userId &&
+      req.body.userId != userId &&
+      isAdmin !== true &&
+      isMod !== true
+    ) {
       throw "Invalid user ID";
     } else {
       next();
     }
   } catch (error) {
-    res.status(401).json({ error: error | "Unauthorized request" });
+    res.status(402).json({ error: error | "Unauthorized request" });
   }
 };
