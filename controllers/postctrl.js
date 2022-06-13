@@ -10,7 +10,6 @@ exports.viewPosts = (req, res) => {
     order: sequelize.literal("id ASC"),
   })
     .then((posts) => {
-      console.log(posts);
       res.status(201).json(posts);
     })
     .catch((error) => res.status(500).json({ error }));
@@ -27,11 +26,8 @@ exports.viewSinglePost = (req, res) => {
 };
 
 exports.createNewPost = (req, res) => {
-  console.log("INITIAL REQUEST");
-  console.log(req.body);
   let newPost;
   if (req.file) {
-    console.log("NEWPOST WITH FILE HERE");
     newPost = {
       ...JSON.parse(req.body.post),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
@@ -39,11 +35,8 @@ exports.createNewPost = (req, res) => {
       }`,
     };
   } else {
-    console.log("NEWPOST NO FILE HERE");
     newPost = { ...JSON.parse(req.body.post) };
   }
-  console.log("FINAL NEWPOST");
-  console.log(newPost);
   models.Post.create({
     ...newPost,
     UserId: req.auth.userId,
@@ -53,10 +46,8 @@ exports.createNewPost = (req, res) => {
 };
 
 exports.updatePost = (req, res) => {
-  console.log(req.body);
   let updatedPost;
   if (req.file) {
-    console.log("NEWPOST WITH FILE HERE");
     updatedPost = {
       ...JSON.parse(req.body.post),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
@@ -64,11 +55,8 @@ exports.updatePost = (req, res) => {
       }`,
     };
   } else {
-    console.log("NEWPOST NO FILE HERE");
     updatedPost = { ...JSON.parse(req.body.post) };
   }
-  console.log("FINAL NEWPOST");
-  console.log(updatedPost);
   models.Post.update(
     { ...updatedPost },
     {
@@ -80,14 +68,12 @@ exports.updatePost = (req, res) => {
 };
 
 exports.deletePost = (req, res) => {
-  console.log(req.body);
   models.Post.findOne({
     where: {
       id: req.body.postId,
     },
   })
     .then((post) => {
-      console.log(post.UserId);
       if (
         req.auth.userId == post.UserId ||
         req.auth.isAdmin == true ||

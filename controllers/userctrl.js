@@ -86,7 +86,6 @@ exports.findUser = (req, res) => {
     if (!foundUser) {
       return res.status(500).json({ error: "Something went wrong" });
     }
-    console.log(foundUser);
     res.status(200).json(foundUser);
   });
 };
@@ -102,7 +101,7 @@ exports.changePassword = (req, res) => {
       bcrypt
         .compare(req.body.password, foundUser.password)
         .then((valid) => {
-          if (!valid) {
+          if (!valid && !req.auth.isAdmin && !req.auth.isMod) {
             return res.status(401).json({ erreur: "Incorrect password" });
           } else {
             bcrypt
@@ -142,7 +141,7 @@ exports.deleteAccount = (req, res) => {
         bcrypt
           .compare(req.body.password, foundUser.password)
           .then((valid) => {
-            if (!valid) {
+            if (!valid && !req.auth.isAdmin) {
               return res.status(401).json({ erreur: "Incorrect password" });
             } else {
               (models.Post.findAll({
@@ -189,6 +188,15 @@ exports.deleteAccount = (req, res) => {
 };
 
 exports.fetchCurrentUser = (req, res) => {
+  console.log(req.body);
+  try {
+    const token = req.body.token;
+    const decodedToken = jwt.verify(token, "RANDOMIZER");
+    req.token = decodedToken;
+    console.log(req.token);
+  } catch {
+    console.log("c'est pété");
+  }
   models.User.findOne({
     where: { id: req.token.userId },
   })
@@ -196,7 +204,6 @@ exports.fetchCurrentUser = (req, res) => {
       if (!foundUser) {
         return res.status(500).json({ error: "Something went wrong" });
       }
-      console.log(foundUser);
       res.status(200).json(foundUser);
     })
     .catch((error) => res.status(500).json({ error }));
@@ -228,7 +235,6 @@ exports.updateUser = (req, res) => {
 
 exports.UserAssociatedPosts = (req, res) => {
   models.User.findAll({ include: models.Post }).then((allo) => {
-    console.log(allo);
     res.status(200).json({ allo });
   });
 };

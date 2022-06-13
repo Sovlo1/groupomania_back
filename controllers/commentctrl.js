@@ -1,12 +1,8 @@
 const models = require("../models");
 
 exports.addComment = (req, res) => {
-  console.log(req.body);
-  console.log(JSON.parse(req.body.comment));
-  console.log(req.body.postId);
   let newComment;
   if (req.file) {
-    console.log("sup");
     newComment = {
       ...JSON.parse(req.body.comment),
       fileUrl: `${req.protocol}://${req.get("host")}/files/${
@@ -14,10 +10,8 @@ exports.addComment = (req, res) => {
       }`,
     };
   } else {
-    console.log("hello");
     newComment = JSON.parse(req.body.comment);
   }
-  console.log(newComment);
   models.Comment.create({
     ...newComment,
     UserId: req.auth.userId,
@@ -28,7 +22,6 @@ exports.addComment = (req, res) => {
 };
 
 exports.deleteComment = (req, res) => {
-  console.log(req.auth);
   models.Comment.findOne({
     where: {
       id: req.body.commentId,
