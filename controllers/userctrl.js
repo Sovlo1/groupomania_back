@@ -67,6 +67,7 @@ exports.login = (req, res) => {
               }
             );
             return res.status(200).json({
+              foundUser,
               userId,
               isAdmin,
               isMod,
@@ -188,12 +189,10 @@ exports.deleteAccount = (req, res) => {
 };
 
 exports.fetchCurrentUser = (req, res) => {
-  console.log(req.body);
   try {
     const token = req.body.token;
     const decodedToken = jwt.verify(token, "RANDOMIZER");
     req.token = decodedToken;
-    console.log(req.token);
   } catch {
     console.log("c'est pété");
   }
@@ -201,6 +200,7 @@ exports.fetchCurrentUser = (req, res) => {
     where: { id: req.token.userId },
   })
     .then((foundUser) => {
+      console.log(foundUser);
       if (!foundUser) {
         return res.status(500).json({ error: "Something went wrong" });
       }
