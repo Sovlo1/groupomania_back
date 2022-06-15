@@ -63,7 +63,7 @@ exports.login = (req, res) => {
               },
               "RANDOMIZER",
               {
-                expiresIn: 60 * 60 * 24 * 30 * 6,
+                expiresIn: 60 * 60 * 24 * 30,
               }
             );
             return res.status(200).json({
