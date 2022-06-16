@@ -25,6 +25,40 @@ exports.viewSinglePost = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+exports.likePost = (req, res) => {
+  models.Like.findOne({
+    where: { postId: req.body.postId, userId: req.body.userId },
+  })
+    .then((likedPost) => {
+      models.Post.findOne({
+        where: { id: req.body.postId },
+      }).then((storedPost) => {
+        if (likedPost) {
+          models.Like.destroy({
+            where: { postId: req.body.postId, userId: req.body.userId },
+          }).then(() => {
+            models.Post.update(
+              { likes: storedPost.likes - 1 },
+              { where: { id: req.body.postId } }
+            );
+          });
+        } else {
+          models.Like.create({
+            UserId: req.auth.userId,
+            PostId: req.body.postId,
+          }).then(() => {
+            models.Post.update(
+              { likes: storedPost.likes + 1 },
+              { where: { id: req.body.postId } }
+            );
+          });
+        }
+      });
+    })
+    .then(() => res.status(200).json())
+    .catch((error) => res.status(500).json({ error }));
+};
+
 exports.createNewPost = (req, res) => {
   let newPost;
   if (req.file) {
