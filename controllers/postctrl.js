@@ -6,6 +6,7 @@ exports.viewPosts = (req, res) => {
     include: [
       { model: models.Comment, include: { model: models.User } },
       { model: models.User },
+      { model: models.Like },
     ],
     order: sequelize.literal("id ASC"),
   })
@@ -39,7 +40,7 @@ exports.likePost = (req, res) => {
           }).then(() => {
             models.Post.update(
               { likes: storedPost.likes - 1 },
-              { where: { id: req.body.postId } }
+              { where: { id: req.body.postId }, silent: true }
             );
           });
         } else {
@@ -49,7 +50,7 @@ exports.likePost = (req, res) => {
           }).then(() => {
             models.Post.update(
               { likes: storedPost.likes + 1 },
-              { where: { id: req.body.postId } }
+              { where: { id: req.body.postId }, silent: true }
             );
           });
         }
