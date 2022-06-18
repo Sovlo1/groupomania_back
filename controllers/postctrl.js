@@ -4,11 +4,15 @@ const models = require("../models");
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
     include: [
-      { model: models.Comment, include: { model: models.User } },
+      {
+        model: models.Comment,
+        order: [["id", "ASC"]],
+        include: { model: models.User },
+      },
       { model: models.User },
       { model: models.Like },
     ],
-    order: sequelize.literal("id ASC"),
+    order: [["id", "ASC"]],
   })
     .then((posts) => {
       res.status(201).json(posts);
@@ -56,7 +60,7 @@ exports.likePost = (req, res) => {
         }
       });
     })
-    .then(() => res.status(200).json())
+    .then((post) => res.status(200).json(post))
     .catch((error) => res.status(500).json({ error }));
 };
 
