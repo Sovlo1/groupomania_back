@@ -3,16 +3,18 @@ const models = require("../models");
 
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
+    order: [
+      ["createdAt", "ASC"],
+      [models.Comment, "createdAt", "DESC"],
+    ],
     include: [
       {
         model: models.Comment,
-        order: [["id", "ASC"]],
         include: { model: models.User },
       },
       { model: models.User },
       { model: models.Like },
     ],
-    order: [["id", "ASC"]],
   })
     .then((posts) => {
       res.status(201).json(posts);
