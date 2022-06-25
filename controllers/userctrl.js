@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const cryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const models = require("../models");
 const fs = require("fs");
@@ -12,16 +13,22 @@ exports.signup = (req, res) => {
   ) {
     return res.status(400).json({ message: "missing informations" });
   }
+  const cryptedReqMail = cryptoJS
+    .SHA256(req.body.email, "RANDOMIZER")
+    .toString();
   models.User.findOne({
     attributes: ["email"],
-    where: { email: req.body.email },
+    where: { email: cryptedReqMail },
   }).then((foundUser) => {
     if (!foundUser) {
+      const cryptedMail = cryptoJS
+        .SHA256(req.body.email, "RANDOMIZER")
+        .toString();
       bcrypt
         .hash(req.body.password, 10)
         .then((hash) => {
           models.User.create({
-            email: req.body.email,
+            email: cryptedMail,
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             password: hash,
@@ -36,11 +43,12 @@ exports.signup = (req, res) => {
 };
 
 exports.login = (req, res) => {
+  const cryptedMail = cryptoJS.SHA256(req.body.email, "RANDOMIZER").toString();
   if (req.body.email == null || req.body.password == null) {
     return res.status(400).json({ message: "missing informations" });
   }
   models.User.findOne({
-    where: { email: req.body.email },
+    where: { email: cryptedMail },
   })
     .then((foundUser) => {
       if (!foundUser) {
@@ -194,13 +202,12 @@ exports.fetchCurrentUser = (req, res) => {
     const decodedToken = jwt.verify(token, "RANDOMIZER");
     req.token = decodedToken;
   } catch {
-    console.log("c'est pété");
+    res.status(500).json({ error: "something went wrong" });
   }
   models.User.findOne({
     where: { id: req.token.userId },
   })
     .then((foundUser) => {
-      console.log(foundUser);
       if (!foundUser) {
         return res.status(500).json({ error: "Something went wrong" });
       }

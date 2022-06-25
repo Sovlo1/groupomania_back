@@ -24,6 +24,11 @@ module.exports = {
           defaultValue: null,
           type: Sequelize.STRING,
         },
+        bio: {
+          allowNull: true,
+          defaultValue: null,
+          type: Sequelize.TEXT,
+        },
         lastName: {
           allowNull: false,
           type: Sequelize.STRING,

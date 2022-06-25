@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       profilePicUrl: DataTypes.STRING,
       isAdmin: DataTypes.BOOLEAN,
       isMod: DataTypes.BOOLEAN,
+      bio: DataTypes.TEXT,
     },
     {
       sequelize,
