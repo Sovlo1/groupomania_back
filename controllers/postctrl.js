@@ -1,11 +1,11 @@
-const { sequelize } = require("../models");
 const models = require("../models");
+const fs = require("fs");
 
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
     order: [
       ["createdAt", "ASC"],
-      [models.Comment, "createdAt", "DESC"],
+      [models.Comment, "createdAt", "ASC"],
     ],
     include: [
       {
@@ -95,6 +95,20 @@ exports.updatePost = (req, res) => {
         req.file.filename
       }`,
     };
+    models.Post.findOne({ where: { id: req.params.id } })
+      .then((post) => {
+        if (post.fileUrl !== null) {
+          let file = post.fileUrl.split("/files/")[1];
+          fs.unlink(`files/${file}`, (err) => {
+            if (err) {
+              console.log(`Could not delete ${file}`);
+            } else {
+              console.log(`Successfully deleted ${file}`);
+            }
+          });
+        }
+      })
+      .catch((error) => res.status(500).json({ error }));
   } else {
     updatedPost = { ...JSON.parse(req.body.post) };
   }
@@ -120,6 +134,16 @@ exports.deletePost = (req, res) => {
         req.auth.isAdmin == true ||
         req.auth.isMod == true
       ) {
+        if (post.fileUrl !== null) {
+          let file = post.fileUrl.split("/files/")[1];
+          fs.unlink(`files/${file}`, (err) => {
+            if (err) {
+              console.log(`Could not delete ${file}`);
+            } else {
+              console.log(`Successfully deleted ${file}`);
+            }
+          });
+        }
         models.Post.destroy({
           where: {
             id: req.body.postId,

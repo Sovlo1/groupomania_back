@@ -1,4 +1,5 @@
 const models = require("../models");
+const fs = require("fs");
 
 exports.addComment = (req, res) => {
   let newComment;
@@ -21,6 +22,16 @@ exports.addComment = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+exports.viewSingleComment = (req, res) => {
+  models.Comment.findOne({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((comment) => res.status(200).json(comment))
+    .catch((error) => res.status(500).json({ error }));
+};
+
 exports.deleteComment = (req, res) => {
   models.Comment.findOne({
     where: {
@@ -33,6 +44,16 @@ exports.deleteComment = (req, res) => {
         req.auth.isAdmin == true ||
         req.auth.isMod == true
       ) {
+        if (comment.fileUrl !== null) {
+          let file = comment.fileUrl.split("/files/")[1];
+          fs.unlink(`files/${file}`, (err) => {
+            if (err) {
+              console.log(`Could not delete ${file}`);
+            } else {
+              console.log(`Successfully deleted ${file}`);
+            }
+          });
+        }
         models.Comment.destroy({
           where: {
             id: req.body.commentId,

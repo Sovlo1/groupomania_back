@@ -225,6 +225,20 @@ exports.updateUser = (req, res) => {
         req.file.filename
       }`,
     };
+    models.User.findOne({ where: { id: req.body.userId } })
+      .then((user) => {
+        if (user.profilePicUrl !== null) {
+          let file = user.profilePicUrl.split("/files/")[1];
+          fs.unlink(`files/${file}`, (err) => {
+            if (err) {
+              console.log(`Could not delete ${file}`);
+            } else {
+              console.log(`Successfully deleted ${file}`);
+            }
+          });
+        }
+      })
+      .catch((error) => res.status(500).json({ error }));
   } else {
     updatedUser = JSON.parse(req.body.user);
   }
