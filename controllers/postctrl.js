@@ -1,6 +1,9 @@
 const models = require("../models");
 const fs = require("fs");
 
+const postRegex =
+  /^([0-9a-zA-Z !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]){2,}$/;
+
 exports.viewPosts = (req, res) => {
   models.Post.findAll({
     order: [
@@ -67,6 +70,15 @@ exports.likePost = (req, res) => {
 };
 
 exports.createNewPost = (req, res) => {
+  let post = { ...JSON.parse(req.body.post) };
+  let isTitleValid = postRegex.test(post.title);
+  let isContentValid = postRegex.test(post.content);
+  if (!isContentValid || !isTitleValid) {
+    return res
+      .status(401)
+      .json({ error: "Please type a valid title and/or message" });
+  }
+  console.log(req.body.post);
   let newPost;
   if (req.file) {
     newPost = {
@@ -87,6 +99,14 @@ exports.createNewPost = (req, res) => {
 };
 
 exports.updatePost = (req, res) => {
+  let post = { ...JSON.parse(req.body.post) };
+  let isTitleValid = postRegex.test(post.title);
+  let isContentValid = postRegex.test(post.content);
+  if (!isContentValid || !isTitleValid) {
+    return res
+      .status(401)
+      .json({ error: "Please type a valid title and/or message" });
+  }
   let updatedPost;
   if (req.file) {
     updatedPost = {
@@ -97,6 +117,13 @@ exports.updatePost = (req, res) => {
     };
     models.Post.findOne({ where: { id: req.params.id } })
       .then((post) => {
+        if (
+          post.UserId !== req.auth.userId ||
+          !req.auth.isMod ||
+          !req.auth.isAdmin
+        ) {
+          return res.status(401).json({ error: "Unauthorized operation" });
+        }
         if (post.fileUrl !== null) {
           let file = post.fileUrl.split("/files/")[1];
           fs.unlink(`files/${file}`, (err) => {
@@ -150,7 +177,7 @@ exports.deletePost = (req, res) => {
           },
         });
       } else {
-        res.status(401).json({ message: "Unauthorized operation" });
+        res.status(401).json({ error: "Unauthorized operation" });
       }
     })
     .then(() => res.status(200).json({ message: "Deleted post" }))

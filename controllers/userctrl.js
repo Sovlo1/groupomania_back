@@ -4,14 +4,23 @@ const jwt = require("jsonwebtoken");
 const models = require("../models");
 const fs = require("fs");
 
+const mailRegex = /^[\.\-_0-9a-z]+@([a-z])+\.[a-z]+$/;
+const passwordRegex = /^([\\.\-_0-9a-zA-Z]){6,20}$/;
+
 exports.signup = (req, res) => {
+  let mailIsValid = mailRegex.test(req.body.email);
+  let passwordIsValid = passwordRegex.test(req.body.password);
   if (
     req.body.email == null ||
     req.body.firstName == null ||
     req.body.lastName == null ||
-    req.body.password == null
+    req.body.password == null ||
+    !mailIsValid ||
+    !passwordIsValid
   ) {
-    return res.status(400).json({ message: "missing informations" });
+    return res
+      .status(400)
+      .json({ error: "please fill every field with valid informations" });
   }
   const cryptedReqMail = cryptoJS
     .SHA256(req.body.email, "RANDOMIZER")
@@ -37,28 +46,37 @@ exports.signup = (req, res) => {
         .then(() => res.status(201).json({ message: "signup successful!" }))
         .catch((error) => res.status(500).json({ error }));
     } else {
-      return res.status(400).json({ message: "user already exists" });
+      return res.status(400).json({ error: "user already exists" });
     }
   });
 };
 
 exports.login = (req, res) => {
+  let mailIsValid = mailRegex.test(req.body.email);
+  let passwordIsValid = passwordRegex.test(req.body.password);
   const cryptedMail = cryptoJS.SHA256(req.body.email, "RANDOMIZER").toString();
-  if (req.body.email == null || req.body.password == null) {
-    return res.status(400).json({ message: "missing informations" });
+  if (
+    req.body.email == null ||
+    req.body.password == null ||
+    !mailIsValid ||
+    !passwordIsValid
+  ) {
+    return res
+      .status(400)
+      .json({ error: "email and/or password are either missing or invalid" });
   }
   models.User.findOne({
     where: { email: cryptedMail },
   })
     .then((foundUser) => {
       if (!foundUser) {
-        return res.status(401).json({ erreur: "User doesn't exist" });
+        return res.status(401).json({ error: "User doesn't exist" });
       }
       bcrypt
         .compare(req.body.password, foundUser.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({ erreur: "Incorrect password" });
+            return res.status(401).json({ error: "Incorrect password" });
           } else {
             const userId = foundUser.id.toString();
             const isAdmin = foundUser.isAdmin;
@@ -93,25 +111,30 @@ exports.findUser = (req, res) => {
     where: { id: req.params.id },
   }).then((foundUser) => {
     if (!foundUser) {
-      return res.status(500).json({ error: "Something went wrong" });
+      return res.status(500).json({ error: "couldn't find user" });
     }
     res.status(200).json(foundUser);
   });
 };
 
 exports.changePassword = (req, res) => {
+  let passwordIsValid = passwordRegex.test(req.body.password);
+  let newPasswordIsValid = passwordRegex.test(req.body.newPassword);
+  if (!newPasswordIsValid || !passwordIsValid) {
+    return res.status(401).json({ error: "Please type a valid password" });
+  }
   models.User.findOne({
     where: { id: req.body.userId },
   })
     .then((foundUser) => {
       if (!foundUser) {
-        return res.status(401).json({ erreur: "User doesn't exist" });
+        return res.status(401).json({ error: "User doesn't exist" });
       }
       bcrypt
         .compare(req.body.password, foundUser.password)
         .then((valid) => {
           if (!valid && !req.auth.isAdmin && !req.auth.isMod) {
-            return res.status(401).json({ erreur: "Incorrect password" });
+            return res.status(401).json({ error: "Incorrect password" });
           } else {
             bcrypt
               .hash(req.body.newPassword, 10)
@@ -145,13 +168,15 @@ exports.deleteAccount = (req, res) => {
   })
     .then((foundUser) => {
       if (!foundUser) {
-        return res.status(401).json({ erreur: "User doesn't exist" });
+        return res.status(401).json({ error: "User doesn't exist" });
+      } else if (foundUser.userId !== req.auth.userId || !req.auth.isAdmin) {
+        return res.status(401).json({ error: "Unauthorized operation" });
       } else {
         bcrypt
           .compare(req.body.password, foundUser.password)
           .then((valid) => {
             if (!valid && !req.auth.isAdmin) {
-              return res.status(401).json({ erreur: "Incorrect password" });
+              return res.status(401).json({ error: "Incorrect password" });
             } else {
               (models.Post.findAll({
                 where: {
@@ -227,6 +252,13 @@ exports.updateUser = (req, res) => {
     };
     models.User.findOne({ where: { id: req.body.userId } })
       .then((user) => {
+        if (
+          user.userId !== req.auth.userId ||
+          !req.auth.isMod ||
+          !req.auth.isAdmin
+        ) {
+          return res.status(401).json({ error: "Unauthorized operation" });
+        }
         if (user.profilePicUrl !== null) {
           let file = user.profilePicUrl.split("/files/")[1];
           fs.unlink(`files/${file}`, (err) => {
@@ -252,10 +284,4 @@ exports.updateUser = (req, res) => {
   )
     .then(() => res.status(201).json({ message: "Updated user!" }))
     .catch((error) => res.status(500).json({ error }));
-};
-
-exports.UserAssociatedPosts = (req, res) => {
-  models.User.findAll({ include: models.Post }).then((allo) => {
-    res.status(200).json({ allo });
-  });
 };

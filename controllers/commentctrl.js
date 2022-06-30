@@ -1,7 +1,15 @@
 const models = require("../models");
 const fs = require("fs");
 
+const commentRegex =
+  /^([0-9a-zA-Z !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]){2,}$/;
+
 exports.addComment = (req, res) => {
+  let comment = { ...JSON.parse(req.body.comment) };
+  let isContentValid = commentRegex.test(comment.content);
+  if (!isContentValid) {
+    return res.status(401).json({ error: "Please type a valid message" });
+  }
   let newComment;
   if (req.file) {
     newComment = {
