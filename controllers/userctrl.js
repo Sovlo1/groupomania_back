@@ -169,9 +169,7 @@ exports.deleteAccount = (req, res) => {
     .then((foundUser) => {
       if (!foundUser) {
         return res.status(401).json({ error: "User doesn't exist" });
-      } else if (foundUser.userId !== req.auth.userId || !req.auth.isAdmin) {
-        return res.status(401).json({ error: "Unauthorized operation" });
-      } else {
+      } else if (foundUser.id == req.auth.userId || req.auth.isAdmin) {
         bcrypt
           .compare(req.body.password, foundUser.password)
           .then((valid) => {
@@ -216,6 +214,8 @@ exports.deleteAccount = (req, res) => {
             }
           })
           .catch((error) => res.status(500).json({ error }));
+      } else {
+        return res.status(401).json({ error: "Unauthorized operation" });
       }
     })
     .catch((error) => res.status(500).json({ error }));

@@ -1,9 +1,6 @@
 const multer = require("multer");
 
 const MIME_TYPES = {
-  "video/webm": "webm",
-  "video/mp4": "mp4",
-  "video/mpeg": "mpeg",
   "image/gif": "gif",
   "image/jpg": "jpg",
   "image/jpeg": "jpg",
