@@ -36,6 +36,9 @@ exports.viewSinglePost = (req, res) => {
 };
 
 exports.likePost = (req, res) => {
+  if (req.auth.userId !== req.body.userId) {
+    return res.status(401).json({ error: "Unauthorized operation" });
+  }
   models.Like.findOne({
     where: { postId: req.body.postId, userId: req.body.userId },
   })
