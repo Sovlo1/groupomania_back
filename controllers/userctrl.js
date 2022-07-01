@@ -252,22 +252,19 @@ exports.updateUser = (req, res) => {
     };
     models.User.findOne({ where: { id: req.body.userId } })
       .then((user) => {
-        if (
-          user.userId !== req.auth.userId ||
-          !req.auth.isMod ||
-          !req.auth.isAdmin
-        ) {
-          return res.status(401).json({ error: "Unauthorized operation" });
-        }
-        if (user.profilePicUrl !== null) {
-          let file = user.profilePicUrl.split("/files/")[1];
-          fs.unlink(`files/${file}`, (err) => {
-            if (err) {
-              console.log(`Could not delete ${file}`);
-            } else {
-              console.log(`Successfully deleted ${file}`);
-            }
-          });
+        if (user.id == req.auth.userId || req.auth.isMod || req.auth.isAdmin) {
+          if (user.profilePicUrl !== null) {
+            let file = user.profilePicUrl.split("/files/")[1];
+            fs.unlink(`files/${file}`, (err) => {
+              if (err) {
+                console.log(`Could not delete ${file}`);
+              } else {
+                console.log(`Successfully deleted ${file}`);
+              }
+            });
+          }
+        } else {
+          return res.status(401).json({ error: "Unauthorized operation la" });
         }
       })
       .catch((error) => res.status(500).json({ error }));
