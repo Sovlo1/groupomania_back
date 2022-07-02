@@ -17,12 +17,12 @@ const storage = multer.diskStorage({
       .slice(0, -1)
       .join("_");
     const extension = MIME_TYPES[file.mimetype];
-    const whenUploaded = new Date(Date.now() + 7200000)
+    const uploadTime = new Date(Date.now() + 7200000)
       .toISOString()
       .split(/[:\.]+/)
       .slice(0, -1)
       .join("-");
-    callback(null, whenUploaded + name + "." + extension);
+    callback(null, uploadTime + name + "." + extension);
   },
 });
 
