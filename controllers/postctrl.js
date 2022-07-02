@@ -20,7 +20,7 @@ exports.viewPosts = (req, res) => {
     ],
   })
     .then((posts) => {
-      res.status(201).json(posts);
+      res.status(200).json(posts);
     })
     .catch((error) => res.status(500).json({ error }));
 };
