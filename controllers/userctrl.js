@@ -6,17 +6,25 @@ const fs = require("fs");
 
 const mailRegex = /^[\.\-_0-9a-z]+@([a-z])+\.[a-z]+$/;
 const passwordRegex = /^([\\.\-_0-9a-zA-Z]){6,20}$/;
+const firstNameRegex =
+  /^([a-zA-ZàèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ])+((([\-])?)[a-zA-ZàèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ])*$/;
+const lastNameRegex =
+  /^([a-zA-ZàèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ])+((([\- '])?)[a-zA-ZàèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ])*$/;
 
 exports.signup = (req, res) => {
   let mailIsValid = mailRegex.test(req.body.email);
   let passwordIsValid = passwordRegex.test(req.body.password);
+  let firstNameIsValid = firstNameRegex.test(req.body.firstName);
+  let lastNameIsValid = lastNameRegex.test(req.body.lastName);
   if (
     req.body.email == null ||
     req.body.firstName == null ||
     req.body.lastName == null ||
     req.body.password == null ||
     !mailIsValid ||
-    !passwordIsValid
+    !passwordIsValid ||
+    !firstNameIsValid ||
+    !lastNameIsValid
   ) {
     return res
       .status(400)
@@ -161,6 +169,12 @@ exports.changePassword = (req, res) => {
 };
 
 exports.deleteAccount = (req, res) => {
+  let passwordIsValid = passwordRegex.test(req.body.password);
+  if (!passwordIsValid || req.body.password == null) {
+    return res
+      .status(401)
+      .json({ error: "The password you typed isn't valid" });
+  }
   models.User.findOne({
     where: {
       id: req.body.userId,
@@ -242,6 +256,19 @@ exports.fetchCurrentUser = (req, res) => {
 };
 
 exports.updateUser = (req, res) => {
+  let checkRegex = { ...JSON.parse(req.body.user) };
+  let firstNameIsValid = firstNameRegex.test(checkRegex.firstName);
+  let lastNameIsValid = lastNameRegex.test(checkRegex.lastName);
+  if (
+    !firstNameIsValid ||
+    !lastNameIsValid ||
+    checkRegex.firstName == null ||
+    checkRegex.lastName == null
+  ) {
+    return res
+      .status(400)
+      .json({ error: "please fill every field with valid informations" });
+  }
   let updatedUser;
   if (req.file) {
     updatedUser = {
