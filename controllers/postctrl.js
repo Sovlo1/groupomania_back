@@ -81,7 +81,6 @@ exports.createNewPost = (req, res) => {
       .status(401)
       .json({ error: "Please type a valid title and/or message" });
   }
-  console.log(req.body.post);
   let newPost;
   if (req.file) {
     newPost = {
