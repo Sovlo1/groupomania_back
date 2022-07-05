@@ -52,7 +52,7 @@ exports.signup = (req, res) => {
           });
         })
         .then(() => res.status(201).json({ message: "signup successful!" }))
-        .catch((error) => res.status(500).json({ error }));
+        .catch(() => res.status(500).json({ error: "something went wrong" }));
     } else {
       return res.status(400).json({ error: "user already exists" });
     }
@@ -109,9 +109,9 @@ exports.login = (req, res) => {
             });
           }
         })
-        .catch((error) => res.status(500).json({ error }));
+        .catch(() => res.status(500).json({ error: "something went wrong" }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: "something went wrong" }));
 };
 
 exports.findUser = (req, res) => {
@@ -163,9 +163,9 @@ exports.changePassword = (req, res) => {
               );
           }
         })
-        .catch((error) => res.status(500).json({ error }));
+        .catch(() => res.status(500).json({ error: "something went wrong" }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: "something went wrong" }));
 };
 
 exports.deleteAccount = (req, res) => {
@@ -227,12 +227,12 @@ exports.deleteAccount = (req, res) => {
               });
             }
           })
-          .catch((error) => res.status(500).json({ error }));
+          .catch(() => res.status(500).json({ error: "something went wrong" }));
       } else {
         return res.status(401).json({ error: "Unauthorized operation" });
       }
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: "something went wrong" }));
 };
 
 exports.fetchCurrentUser = (req, res) => {
@@ -252,7 +252,7 @@ exports.fetchCurrentUser = (req, res) => {
       }
       res.status(200).json(foundUser);
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: "something went wrong" }));
 };
 
 exports.updateUser = (req, res) => {
@@ -294,7 +294,7 @@ exports.updateUser = (req, res) => {
           return res.status(401).json({ error: "Unauthorized operation la" });
         }
       })
-      .catch((error) => res.status(500).json({ error }));
+      .catch(() => res.status(500).json({ error: "something went wrong" }));
   } else {
     updatedUser = JSON.parse(req.body.user);
   }
@@ -307,5 +307,5 @@ exports.updateUser = (req, res) => {
     }
   )
     .then(() => res.status(200).json({ message: "Updated user!" }))
-    .catch((error) => res.status(500).json({ error }));
+    .catch(() => res.status(500).json({ error: "something went wrong" }));
 };
