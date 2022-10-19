@@ -2,6 +2,8 @@
 
 <img src="https://i.imgur.com/M4FoPs7.png" />
 
+Les informations concernant la partie front du projet [se trouvent ici](https://github.com/Sovlo1/groupomania_front)
+
 ## Installer le serveur
 
 Cloner le projet, puis exécuter `npm i` depuis la racine du projet pour installer toutes les dépendances requises
